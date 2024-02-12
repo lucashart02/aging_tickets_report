@@ -30,7 +30,7 @@ def main():
     input_is_file = True
     show_output = True
     output_is_file = False
-    show_run_mode = True
+    show_run_mode = False
 
     button_font = QFont("slab serif", 9)
 
@@ -120,7 +120,7 @@ def main():
             QMessageBox.warning(window, "Warning", "Please provide all required fields.")
             return
 
-        with open("../.env", 'w') as env:
+        with open("./.env", 'w') as env:
             if show_input:
                 if input_is_file:
                     env.write(f"INPUT_FILE={input_path}\n")
@@ -134,7 +134,7 @@ def main():
             if show_run_mode:
                 env.write(f"RUN_MODE={mode}\n")
 
-        if mode == "Production":
+        if mode == "Production" or not show_run_mode:
             script_path = "src/prod/script.py"
         elif mode == "SB":
             script_path = "src/sb/script.py"
@@ -149,6 +149,10 @@ def main():
         loading_gif.start()
         process = subprocess.Popen(["python", script_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
+        if stdout:
+            print("Output:", stdout.decode())
+        if stderr:
+            print("Error:", stderr.decode())
         loading_gif.stop()
         loading_dialog.close()
         run_button.setEnabled(True)
