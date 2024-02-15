@@ -14,7 +14,7 @@ def main():
     window.setWindowTitle('Script Runner')
     window.setFixedWidth(700)
     layout = QVBoxLayout()
-    window.setWindowIcon(QIcon('./assets/logo.png'))
+    window.setWindowIcon(QIcon('../assets/logo.png'))
 
     # styling
     app.setStyle('fusion')
@@ -96,7 +96,7 @@ def main():
     layout.addWidget(run_button)
     layout.addWidget(exit_button)
 
-    loading_gif = QMovie("./assets/pacman-loading.gif")
+    loading_gif = QMovie("../assets/pacman-loading.gif")
     loading_dialog = QDialog(window)
     loading_label = QLabel(loading_dialog)
     loading_label.setMovie(loading_gif)
@@ -120,7 +120,7 @@ def main():
             QMessageBox.warning(window, "Warning", "Please provide all required fields.")
             return
 
-        with open("./.env", 'w') as env:
+        with open("../.env", 'w') as env:
             if show_input:
                 if input_is_file:
                     env.write(f"INPUT_FILE={input_path}\n")
@@ -135,11 +135,11 @@ def main():
                 env.write(f"RUN_MODE={mode}\n")
 
         if mode == "Production" or not show_run_mode:
-            script_path = "src/prod/script.py"
+            script_path = "../src/prod/script.py"
         elif mode == "SB":
-            script_path = "src/sb/script.py"
+            script_path = "../src/sb/script.py"
         elif mode == "Authorization":
-            script_path = "src/auth.py"
+            script_path = "../src/auth.py"
         else:
             QMessageBox.warning(window, "Warning", "Please select a valid run mode.")
             return
@@ -158,8 +158,13 @@ def main():
         run_button.setEnabled(True)
         QMessageBox.information(window, "Information", "Script finished running")
 
+    def clear_env_and_close():
+        with open("../.env", 'w') as env:
+            env.write("")
+        window.close()
+
     run_button.clicked.connect(run_script)
-    exit_button.clicked.connect(lambda: window.close())
+    exit_button.clicked.connect(clear_env_and_close)
 
     window.show()
     app.exec()
