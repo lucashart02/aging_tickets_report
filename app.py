@@ -157,14 +157,11 @@ def main():
         loading_dialog.close()
         run_button.setEnabled(True)
         QMessageBox.information(window, "Information", "Script finished running")
-
-    def clear_env_and_close():
         with open("../.env", 'w') as env:
-            env.write("")
-        window.close()
+            pass
 
     run_button.clicked.connect(run_script)
-    exit_button.clicked.connect(clear_env_and_close)
+    exit_button.clicked.connect(lambda: window.close())
 
     window.show()
     app.exec()
