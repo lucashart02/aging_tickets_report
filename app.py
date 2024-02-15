@@ -1,9 +1,9 @@
 from dotenv import load_dotenv
 import sys
 import os
-import subprocess
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLabel, QFileDialog, QComboBox, QLineEdit, QMessageBox, QLabel, QDialog, QFrame
 from PyQt5.QtGui import QMovie, QIcon, QPalette, QColor, QFont
+from src.prod.script import process_aging_report
 
 def main():
     load_dotenv()
@@ -11,7 +11,7 @@ def main():
     # app init
     app = QApplication(sys.argv)
     window = QMainWindow()
-    window.setWindowTitle('Script Runner')
+    window.setWindowTitle('Aging Ticket Report Modifier')
     window.setFixedWidth(700)
     layout = QVBoxLayout()
     window.setWindowIcon(QIcon('../assets/logo.png'))
@@ -120,45 +120,15 @@ def main():
             QMessageBox.warning(window, "Warning", "Please provide all required fields.")
             return
 
-        with open("../.env", 'w') as env:
-            if show_input:
-                if input_is_file:
-                    env.write(f"INPUT_FILE={input_path}\n")
-                else:
-                    env.write(f"INPUT_DIR={input_path}\n")
-            if show_output:
-                if output_is_file:
-                    env.write(f"OUTPUT_FILE={output_path}\n")
-                else:
-                    env.write(f"OUTPUT_DIR={output_path}\n")
-            if show_run_mode:
-                env.write(f"RUN_MODE={mode}\n")
-
         if mode == "Production" or not show_run_mode:
-            script_path = "../src/prod/script.py"
-        elif mode == "SB":
-            script_path = "../src/sb/script.py"
-        elif mode == "Authorization":
-            script_path = "../src/auth.py"
-        else:
-            QMessageBox.warning(window, "Warning", "Please select a valid run mode.")
-            return
-
-        run_button.setEnabled(False)
-        loading_dialog.show()
-        loading_gif.start()
-        process = subprocess.Popen(["python", script_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
-        if stdout:
-            print("Output:", stdout.decode())
-        if stderr:
-            print("Error:", stderr.decode())
-        loading_gif.stop()
-        loading_dialog.close()
-        run_button.setEnabled(True)
-        QMessageBox.information(window, "Information", "Script finished running")
-        with open("../.env", 'w') as env:
-            pass
+            run_button.setEnabled(False)
+            loading_dialog.show()
+            loading_gif.start()
+            process_aging_report(input_path, output_path)
+            loading_gif.stop()
+            loading_dialog.close()
+            run_button.setEnabled(True)
+            QMessageBox.information(window, "Information", "Script finished running")
 
     run_button.clicked.connect(run_script)
     exit_button.clicked.connect(lambda: window.close())
